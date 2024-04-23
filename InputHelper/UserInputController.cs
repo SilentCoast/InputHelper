@@ -2,7 +2,7 @@
 {
     public static class UserInputController
     {
-        public static T GetPositiveInput<T>(string message, string errorMessage, Func<string, (bool, T)> parser)
+        private static T GetPositiveInput<T>(string message, string errorMessage, Func<string, (bool, T)> parser)
         {
             T result;
             bool parsingSuccess;
@@ -20,7 +20,7 @@
             return result;
         }
 
-        public static int GetPositiveIntegerInput(string message, string errorMessage)
+        public static int GetPositiveIntegerInput(string message, string errorMessage = "Wrong input")
         {
             return GetPositiveInput(message, errorMessage, input =>
             {
@@ -29,7 +29,7 @@
             });
         }
 
-        public static decimal GetPositiveDecimalInput(string message, string errorMessage)
+        public static decimal GetPositiveDecimalInput(string message, string errorMessage = "Wrong input")
         {
             return GetPositiveInput(message, errorMessage, input =>
             {
@@ -39,7 +39,7 @@
             });
         }
 
-        public static double GetPositiveDoubleInput(string message, string errorMessage)
+        public static double GetPositiveDoubleInput(string message, string errorMessage = "Wrong input")
         {
             return GetPositiveInput(message, errorMessage, input =>
             {
@@ -48,10 +48,39 @@
                 return (success, value);
             });
         }
-        public static string GetStringInput(string message)
+        private static T GetInput<T>(string message, string errorMessage, Func<string, (bool, T)> parser)
         {
-            Console.Write(message);
-            return Console.ReadLine();
+            T result;
+            bool parsingSuccess;
+            do
+            {
+                Console.Write(message);
+                var input = Console.ReadLine();
+                (parsingSuccess, result) = parser(input);
+                if (!parsingSuccess)
+                {
+                    Console.WriteLine(errorMessage);
+                }
+            } while (!parsingSuccess);
+
+            return result;
+        }
+        public static double GetDoubleInput(string message, string errorMessage = "Wrong input")
+        {
+            return GetInput(message, errorMessage, input =>
+            {
+                double value;
+                bool success = double.TryParse(input, out value);
+                return (success, value);
+            });
+        }
+        public static string GetStringInput(string message, string errorMessage = "Wrong input")
+        {
+            return GetInput(message, errorMessage, input =>
+            {
+                bool success = !string.IsNullOrEmpty(input);
+                return (success, input);
+            });
         }
     }
 }
